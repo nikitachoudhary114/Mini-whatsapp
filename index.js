@@ -24,18 +24,15 @@ async function main() {
 }
 function wrapAsync(fn) {
   return function (req, res, next) {
-    fn(req, res, next).catch(next(err));
+    fn( req, res, next).catch(next);
   };
 } 
 
 
-app.get("/chats",wrapAsync( async (req, res, next) => {
- 
+app.get("/chats", async (req, res, next) => {
     let chats = await Chat.find();
     res.render("chat.ejs", { chats });
-  
-
-}));
+});
 
 app.get("/chats/new", (req, res) => {
   // throw new ExpressError(404, "page not found");
@@ -110,11 +107,18 @@ app.get("/chats/:id", wrapAsync(async (req, res, next) => {
 app.get("/", (req, res) => {
   res.send("working");
 });
-//error handling
+
+app.use((err, req, res, next) => {
+  console.log(err.name);
+  next(err);
+})
+
+// error handling
 app.use((err, req, res, next) => {
   let { status = 500, message = "some error occured" } = err;
   res.status(status).send(message);
 });
+
 
 app.listen(8080, () => {
   console.log("listening to port 8080");
