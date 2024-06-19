@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All chats</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body>
+    <h3>All chats!</h3>
+    <form method="get" action="/chats/new"><button>New Chat</button></form>
+    <% for(c of chats){ %>
+    <div class="chat">
+      <p><i>From:<%= c.from %></i></p>
+      <div class="msg">
+        <%= c.msg %>
+        <form action="/chats/<%= c._id %>/edit"><button>Edit</button></form>
+        <form action="/chats/<%= c._id %>"><button>show</button></form>
+      </div>
+      <p><i>To:<%= c.to %></i></p>
+      <hr />
+      <p><%= c.created_at.toString().split(" ")[4]%></p>
+      <p><%= c.created_at.toString().split(" ").slice(0,4).join(" ")%></p>
+      <form
+        method="post"
+        action="/chats/<%= c._id %>/?_method=DELETE"
+        class="sure"
+      >
+        <button>Delete</button>
+      </form>
+    </div>
+    <% } %>
+  </body>
+  <script>
+    let alert = document.querySelector(".sure");
+    alert.addEventListener(("click"),()=>{
+      console.log("clickd");
+    })
+  </script>
+</html>
