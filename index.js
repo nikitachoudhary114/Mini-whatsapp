@@ -22,35 +22,37 @@ main()
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/whatsapp");
 }
+function wrapAsync(fn) {
+  return function (req, res, next) {
+    fn(req, res, next).catch(next(err));
+  };
+} 
 
-app.get("/chats", async (req, res, next) => {
-  try {
+
+app.get("/chats",wrapAsync( async (req, res, next) => {
+ 
     let chats = await Chat.find();
     res.render("chat.ejs", { chats });
-  } catch (err) {
-    next(err); 
-  }
+  
 
-});
+}));
 
 app.get("/chats/new", (req, res) => {
   // throw new ExpressError(404, "page not found");
   res.render("new.ejs");
 });
 
-app.get("/chats/:id/edit", async (req, res, next) => {
-  try {
+app.get("/chats/:id/edit",wrapAsync( async (req, res, next) => {
+  
     let { id } = req.params;
     let chat = await Chat.findById(id);
     res.render("edit.ejs", { chat });
-  } catch (err) {
-    next(err);
-  }
-  
-});
 
-app.patch("/chats/:id", async (req, res,next) => {
-  try {
+  
+}));
+
+app.patch("/chats/:id", wrapAsync(async (req, res,next) => {
+
     let { id } = req.params;
     let { msg } = req.body;
     let chat = await Chat.findByIdAndUpdate(
@@ -59,26 +61,22 @@ app.patch("/chats/:id", async (req, res,next) => {
       { runValidators: true, new: true }
     );
     res.redirect("/chats");
-  } catch (err) {
-    next(err);
-  }
   
-});
+  
+}));
 
-app.delete("/chats/:id", async (req, res, next) => {
-  try {
+app.delete("/chats/:id", wrapAsync(async (req, res, next) => {
+
     let { id } = req.params;
     let deletedChat = await Chat.findByIdAndDelete(id);
     console.log(deletedChat);
     res.redirect("/chats");
-  } catch (err) {
-    next(err);
-  }
- 
-});
 
-app.post("/chats", async (req, res, next) => {
-  try {
+ 
+}));
+
+app.post("/chats", wrapAsync(async (req, res, next) => {
+
     let { from, to, msg } = req.body;
     let newChat = new Chat({
       from: from,
@@ -95,24 +93,19 @@ app.post("/chats", async (req, res, next) => {
     //   console.log(err);
     // });
     res.redirect("chats");
-  } catch (err) {
-    next(err);
-  }
-});
 
-app.get("/chats/:id", async (req, res, next) => {
-  try {
+}));
+
+app.get("/chats/:id", wrapAsync(async (req, res, next) => {
+
     let { id } = req.params;
     let chat = await Chat.findById(id);
     if (!chat) {
       next(new ExpressError(404, "chat not found"));
     }
     res.render("edit.ejs", { chat });
-  } catch (err) {
-    next(err);
-  }
 
-});
+}));
 
 app.get("/", (req, res) => {
   res.send("working");
